@@ -11,16 +11,17 @@
 #include "sys/log.h"
 
 #define LOG_MODULE "App"
-#define LOG_LEVEL LOG_LEVEL_APP
+#define LOG_LEVEL LOG_LEVEL_DBG
 
 #define SERVER_EP ("coap://[fd00::1]:5683")
 #define SERVER_REGISTRATION ("/registration")
 
 extern coap_resource_t res_temperature;
+extern coap_resource_t res_humidity;
 
 static coap_message_type_t result = COAP_TYPE_RST;
 
-PROCESS(temp_sensor, "Temperature Sensor");
+PROCESS(temp_sensor, "Temperature and humiditySensor");
 AUTOSTART_PROCESSES(&temp_sensor);
 
 static void response_handler(coap_message_t *response) {
@@ -32,16 +33,14 @@ PROCESS_THREAD(temp_sensor, ev, data) {
 
     static coap_endpoint_t server_ep;
     static coap_message_t request[1];
-    char payload[] = "sensor";
-    /*static coap_resource_t *resources[] = {
-        &res_temperature,
-    };*/
+    char payload[] = "Temperature and humidity sensor";
 
     PROCESS_BEGIN();
 
-    LOG_INFO("Starting temperature sensor \n");
+    LOG_INFO("Starting temperature and humidity sensor \n");
 
     coap_activate_resource(&res_temperature, "sensors/ambient/temperature");
+    coap_activate_resource(&res_humidity, "sensors/ambient/humidity");
 
     coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
 

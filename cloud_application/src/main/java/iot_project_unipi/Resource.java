@@ -6,6 +6,7 @@ public class Resource extends CoapClient {
     private String addr;
     private String name;
     private String path;
+    private String resourceType;
     private String methods;
     private boolean isObservable = false;
 
@@ -16,8 +17,11 @@ public class Resource extends CoapClient {
 
         this.addr = addr;
         this.name = payload;
-        this.path = content_split[1].substring(content_split[1].indexOf("<") + 1, content_split[1].indexOf(">"));
-        this.methods = content_split[3];
+        this.path = content_split[0].substring(content_split[0].indexOf("<") + 1,
+                content_split[0].indexOf(">"));
+        this.resourceType = content_split[1].substring(content_split[1].indexOf("=") + 2,
+                content_split[1].lastIndexOf("\""));
+        this.methods = content_split[2];
         this.isObservable = content.contains("obs");
 
         this.setURI("coap://[" + this.addr + "]" + this.path);
@@ -33,6 +37,10 @@ public class Resource extends CoapClient {
 
     public String getName() {
         return this.name;
+    }
+
+    public String getResourceType() {
+        return this.resourceType;
     }
 
     public boolean hasMethod(String method) {

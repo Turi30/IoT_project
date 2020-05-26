@@ -22,19 +22,19 @@ static void res_periodic_handler(void);
 #define INTERVAL_MIN 5
 #define INTERVAL_MAX (MAX_AGE - 1)
 #define CHANGE 1
-#define TEMP_MAX 40
-#define TEMP_MIN 20
+#define HUM_MAX 100
+#define HUM_MIN 0
 
 static int32_t interval_counter = INTERVAL_MIN;
 
-static resource_t temperature = {
+static resource_t humidity = {
     .value = -1,
     .init = init_resource,
     .update = update_resource,
 };
 
-PERIODIC_RESOURCE(res_temperature,
-                  "title=\"temperature\";methods=\"GET\";rt=\"float\";obs\n",
+PERIODIC_RESOURCE(res_humidity,
+                  "title=\"humidity\";methods=\"GET\";rt=\"float\";obs\n",
                   res_get_handler, NULL, NULL, NULL, 1000,
                   res_periodic_handler);
 
@@ -48,13 +48,13 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
     if (accept == -1 || accept == TEXT_PLAIN) {
         coap_set_header_content_format(response, TEXT_PLAIN);
         snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "%.1f",
-                 temperature.value);
+                 humidity.value);
 
         coap_set_payload(response, (uint8_t *)buffer, strlen((char *)buffer));
     } else if (accept == APPLICATION_JSON) {
         coap_set_header_content_format(response, APPLICATION_JSON);
         snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{'temperature':%.1f}",
-                 temperature.value);
+                 humidity.value);
 
         coap_set_payload(response, buffer, strlen((char *)buffer));
     } else {
@@ -76,14 +76,14 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
  * process with the defined period.
  */
 static void res_periodic_handler() {
-    if (temperature.value == -1)
-        temperature.init((void *)&temperature, TEMP_MIN, TEMP_MAX);
+    if (humidity.value == -1)
+        humidity.init((void *)&humidity, HUM_MIN, HUM_MAX);
 
-    temperature.update((void *)&temperature);
+    humidity.update((void *)&humidity);
 
     ++interval_counter;
 
     /* Notify the registered observers which will trigger the
      * res_get_handler to create the response. */
-    coap_notify_observers(&res_temperature);
+    coap_notify_observers(&res_humidity);
 }
