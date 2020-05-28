@@ -39,18 +39,18 @@ public class RegistrationResource extends CoapResource {
                 new String("coap://[" + addr.toString().substring(1) + "]:5683/.well-known/core");
         CoapClient req = new CoapClient(uri);
 
-        String response = req.get().getResponseText().substring(20);
+        String response = req.get().getResponseText().replace("</.well-known/core>;", "");
 
         for (String res : response.split("\n")) {
 
-            Resource new_res = new Resource(addr.toString().substring(1), res, payload);
+            Resource new_resource = new Resource(addr.toString().substring(1), res, payload);
 
             for (int i = 0; i < App.resources_array.size(); i++)
-                if (new_res.getAddr().equals(App.resources_array.get(i).getAddr())
-                        && new_res.getPath().equals(App.resources_array.get(i).getPath()))
+                if (new_resource.getAddr().equals(App.resources_array.get(i).getAddr())
+                        && new_resource.getPath().equals(App.resources_array.get(i).getPath()))
                     return;
 
-            App.resources_array.add(new_res);
+            App.resources_array.add(new_resource);
         }
         /*
          * byte[] request = exchange.getRequestPayload(); String s = new String(request);

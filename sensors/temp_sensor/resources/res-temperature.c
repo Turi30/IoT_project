@@ -34,7 +34,7 @@ static resource_t temperature = {
 };
 
 PERIODIC_RESOURCE(res_temperature,
-                  "title=\"temperature\";methods=\"GET\";rt=\"float\";obs\n",
+                  "title=\"temperature\";methods=\"GET\";rt=\"float\";obs\n",  //  ?room=0|1|2\" POST/PUT name=<name>&value=<value>\"
                   res_get_handler, NULL, NULL, NULL, 1000,
                   res_periodic_handler);
 
