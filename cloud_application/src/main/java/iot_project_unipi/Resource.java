@@ -39,6 +39,10 @@ public class Resource extends CoapClient {
         return this.name;
     }
 
+    public String getPostPutFormat() {
+        return this.methods.substring(this.methods.indexOf(",")+2);
+    }
+
     public String getResourceType() {
         return this.resourceType;
     }

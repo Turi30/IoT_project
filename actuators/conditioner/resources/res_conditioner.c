@@ -27,11 +27,11 @@ static void res_post_put_handler(coap_message_t *request,
 #define TEMP_MIN 10
 
 static bool mode = false;
-static char temperature[2];
+static int temperature;
 
 RESOURCE(res_conditioner,
-         "title=\"conditioner\";methods=\"GET/PUT/POST\" "
-         "mode=on|off&temperature = <value>\";rt=\"float\";obs\n",
+         "title=\"conditioner\";methods=\"GET/PUT/POST,\" "
+         "mode=on|off&temperature=<value>\";rt=\"float\";obs\n",
          res_get_handler, res_post_put_handler, res_post_put_handler, NULL);
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,
@@ -49,7 +49,7 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
             snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "mode=%s", res_mode);
         else
             snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE,
-                     "mode=%s, temperature=%s", res_mode, temperature);
+                     "mode=%s, temperature=%d", res_mode, temperature);
 
         coap_set_payload(response, (uint8_t *)buffer, strlen((char *)buffer));
     } else if (accept == APPLICATION_JSON) {
@@ -61,7 +61,7 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
                      res_mode);
         else
             snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE,
-                     "{'mode'=%s, 'temperature'=%s", res_mode, temperature);
+                     "{'mode'=%s, 'temperature'=%d", res_mode, temperature);
 
         coap_set_payload(response, buffer, strlen((char *)buffer));
     } else {
@@ -80,15 +80,15 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
 static void res_post_put_handler(coap_message_t *request,
                                  coap_message_t *response, uint8_t *buffer,
                                  uint16_t preferred_size, int32_t *offset) {
+    LOG_DBG("payload: %.*s\n", (int)request->payload_len, request->payload);
     size_t len = 0;
-    const char *temp = NULL;
-    const char *mod = NULL;
+    const char *value = NULL;
     int success = 1;
 
-    if ((len = coap_get_post_variable(request, "mode", &mod))) {
-        if (strncmp(mod, "on", len) == 0) {
+    if ((len = coap_get_post_variable(request, "mode", &value))) {
+        if (strncmp(value, "on", len) == 0) {
             mode = true;
-        } else if (strncmp(mod, "off", len) == 0) {
+        } else if (strncmp(value, "off", len) == 0) {
             mode = false;
         } else {
             success = 0;
@@ -97,9 +97,9 @@ static void res_post_put_handler(coap_message_t *request,
         success = 0;
     }
     if (success &&
-        (len = coap_get_post_variable(request, "temperature", &temp))) {
-
-        strcpy(temperature, temp);
+        (len = coap_get_post_variable(request, "temperature", &value))) {
+        temperature = atoi(value);
+        // memcpy(temperature, temp, len);
     } else {
         success = 0;
     }

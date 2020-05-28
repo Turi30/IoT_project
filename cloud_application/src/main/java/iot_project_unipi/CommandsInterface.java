@@ -42,7 +42,7 @@ public class CommandsInterface {
 
     }
 
-    @ShellMethod("Get parameter of sensor")
+    @ShellMethod("Get parameter of sensor or actuator")
     public void get_parameter() {
         Scanner scanner = new Scanner(System.in);
         echo("Enter the number of the resource to get data: ");
@@ -59,10 +59,53 @@ public class CommandsInterface {
         }
 
         String res = App.resources_array.get(index).get().getResponseText();
-        System.out
-                .println("The " + App.resources_array.get(index).getResourceType() + " is: " + res);
+        echo("The " + App.resources_array.get(index).getResourceType() + " is: " + res);
 
 
+    }
+
+    @ShellMethod("Post method")
+    public void post_method() {
+        Scanner scanner = new Scanner(System.in);
+        echo("Enter the number of the resource to post data: ");
+        int index = scanner.nextInt();
+
+        if (index >= App.resources_array.size()) {
+            echo("Index out of sensor indexes!");
+            return;
+        }
+
+        if (!App.resources_array.get(index).hasMethod("POST")) {
+            echo("This resourse doesn't have post method!");
+            return;
+        }
+
+        String format = App.resources_array.get(index).getPostPutFormat();
+
+        if (format.contains("&")) {
+            for (String s : format.split("&")) {
+                if (s.contains("|")) {
+                    echo("Select one of the following options for the "
+                            + s.substring(0, s.indexOf("=")));
+                    for (String pos : s.substring(s.indexOf("=") + 1).split("|"))
+                        System.out.println(pos + " ");
+                    echo("");
+                } else {
+                    echo("Write a parameter for the " + s.substring(0, s.indexOf("=")));
+                }
+            }
+        } else {
+            echo("Enter the val");
+            if (format.contains("|")) {
+                echo("Select one of the following options for the "
+                        + format.substring(0, format.indexOf("=")));
+                for (String pos : format.substring(format.indexOf("=") + 1).split("|"))
+                    System.out.print(pos + " ");
+                echo("");
+            } else {
+                echo("Write a parameter for the " + format.substring(0, format.indexOf("=")));
+            }
+        }
     }
 
 }
