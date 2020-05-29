@@ -29,6 +29,42 @@ static void res_post_put_handler(coap_message_t *request,
 static bool mode = false;
 static int temperature;
 
+static int coap_get_variable_json(const char *buffer, size_t length,
+                                  const char *name, const char **output) {
+    const char *start = NULL;
+    const char *end = NULL;
+    const char *value_end = NULL;
+    size_t name_len = 0;
+
+    LOG_DBG("Search: %s\n", name);
+
+    /*initialize the output buffer first */
+    *output = 0;
+
+    name_len = strlen(name);
+    end = buffer + length;
+
+    for (start = buffer; start + name_len < end; ++start) {
+        if ((start == buffer || start[-1] == ',' || start[-1] == '{') &&
+            start[name_len] == ':' && strncmp(name, start, name_len) == 0) {
+            LOG_DBG("Found: %s\n", name);
+
+            /* Point start to variable value */
+            start += name_len + 1;
+
+            /* Point end to the end of the value */
+            value_end = (const char *)memchr(start, ',', end - start);
+            if (value_end == NULL) {
+                value_end = end - 1;
+            }
+            *output = start;
+
+            return value_end - start;
+        }
+    }
+    return 0;
+}
+
 RESOURCE(res_conditioner,
          "title=\"conditioner\";methods=\"GET/PUT/POST\", "
          "mode=on|off&temperature=<value>\";rt=\"float\";obs\n",
@@ -84,28 +120,26 @@ static void res_post_put_handler(coap_message_t *request,
     size_t len = 0;
     const char *value = NULL;
     int success = 1;
-    LOG_DBG("%s\n", request->payload);
 
-    if ((len = coap_get_post_variable(request, "\"mode\"", &value))) {
-        LOG_DBG("%s\n", value);
+    LOG_DBG("Payload: %s\n", (char *)request->payload);
+    if ((len = coap_get_variable_json((const char *)request->payload,
+                                      request->payload_len, "\"mode\"",
+                                      &value))) {
         if (strncmp(value, "\"on\"", len) == 0) {
             mode = true;
         } else if (strncmp(value, "\"off\"", len) == 0) {
             mode = false;
-        } else {
+        } else
             success = 0;
-        }
-    } else {
+    } else
         success = 0;
-    }
-    if (success &&
-        (len = coap_get_post_variable(request, "temperature", &value))) {
-        //value++;
+    if (success && (len = coap_get_variable_json((const char *)request->payload,
+                                                 request->payload_len,
+                                                 "\"temperature\"", &value))) {
         temperature = atoi(value);
-        // memcpy(temperature, temp, len);
-    } else {
+    } else
         success = 0;
-    }
+
     if (!success) {
         coap_set_status_code(response, BAD_REQUEST_4_00);
     }

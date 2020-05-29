@@ -80,7 +80,7 @@ public class CommandsInterface {
                 JSONObject jsonObject = (JSONObject) parser.parse(res);
                 for (Object o : jsonObject.keySet()) {
                     System.out
-                            .println("The " + o + " is: " + ((String) jsonObject.get((String) o)));
+                            .println("The " + o + " is: " + (jsonObject.get((String) o)));
                 }
             } catch (ParseException e) {
                 e.printStackTrace();
