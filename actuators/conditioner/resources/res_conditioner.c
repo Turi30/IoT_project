@@ -11,7 +11,7 @@
 #include "sys/log.h"
 
 #define LOG_MODULE "Sensor"
-#define LOG_LEVEL LOG_LEVEL_INFO
+#define LOG_LEVEL LOG_LEVEL_DBG
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,
                             uint8_t *buffer, uint16_t preferred_size,
@@ -30,7 +30,7 @@ static bool mode = false;
 static int temperature;
 
 RESOURCE(res_conditioner,
-         "title=\"conditioner\";methods=\"GET/PUT/POST,\" "
+         "title=\"conditioner\";methods=\"GET/PUT/POST\", "
          "mode=on|off&temperature=<value>\";rt=\"float\";obs\n",
          res_get_handler, res_post_put_handler, res_post_put_handler, NULL);
 
@@ -57,11 +57,12 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
 
         char *res_mode = (mode == false) ? "off" : "on";
         if (!mode)
-            snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{'mode':%s}",
+            snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{\"mode\":\"%s\"}",
                      res_mode);
         else
             snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE,
-                     "{'mode'=%s, 'temperature'=%d", res_mode, temperature);
+                     "{\"mode\":\"%s\", \"temperature\":%d}", res_mode,
+                     temperature);
 
         coap_set_payload(response, buffer, strlen((char *)buffer));
     } else {
@@ -80,15 +81,16 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
 static void res_post_put_handler(coap_message_t *request,
                                  coap_message_t *response, uint8_t *buffer,
                                  uint16_t preferred_size, int32_t *offset) {
-    LOG_DBG("payload: %.*s\n", (int)request->payload_len, request->payload);
     size_t len = 0;
     const char *value = NULL;
     int success = 1;
+    LOG_DBG("%s\n", request->payload);
 
-    if ((len = coap_get_post_variable(request, "mode", &value))) {
-        if (strncmp(value, "on", len) == 0) {
+    if ((len = coap_get_post_variable(request, "\"mode\"", &value))) {
+        LOG_DBG("%s\n", value);
+        if (strncmp(value, "\"on\"", len) == 0) {
             mode = true;
-        } else if (strncmp(value, "off", len) == 0) {
+        } else if (strncmp(value, "\"off\"", len) == 0) {
             mode = false;
         } else {
             success = 0;
@@ -98,6 +100,7 @@ static void res_post_put_handler(coap_message_t *request,
     }
     if (success &&
         (len = coap_get_post_variable(request, "temperature", &value))) {
+        //value++;
         temperature = atoi(value);
         // memcpy(temperature, temp, len);
     } else {

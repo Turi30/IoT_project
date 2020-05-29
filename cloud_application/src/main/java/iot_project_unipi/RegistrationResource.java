@@ -12,7 +12,7 @@ public class RegistrationResource extends CoapResource {
         super(name);
     }
 
-    @Override
+    /*@Override
     public void handleGET(CoapExchange exchange) {
         exchange.accept();
 
@@ -26,7 +26,7 @@ public class RegistrationResource extends CoapResource {
         String res = req.get().getResponseText();
 
         App.resources_array.add(new Resource(addr.toString().substring(1), res, payload));
-    }
+    }*/
 
     @Override
     public void handlePOST(CoapExchange exchange) {
