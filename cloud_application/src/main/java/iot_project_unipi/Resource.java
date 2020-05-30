@@ -9,6 +9,7 @@ public class Resource extends CoapClient {
     private String resourceType;
     private String methods;
     private boolean isObservable = false;
+    private boolean isInRoom = false;
 
     public Resource(String addr, String content, String payload) {
         super();
@@ -57,6 +58,14 @@ public class Resource extends CoapClient {
 
     public boolean isObservable() {
         return this.isObservable;
+    }
+
+    public void setInRoom(boolean b) {
+        this.isInRoom = b;
+    }
+
+    public boolean getInRoom(){
+        return this.isInRoom;
     }
 
 }

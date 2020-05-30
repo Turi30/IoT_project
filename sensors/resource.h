@@ -9,7 +9,7 @@
 #include <stdio.h>
 
 typedef struct resource {
-    float value;
+    int value;
     void (*init)(void *, int, int);
     void (*update)(void *);
 } resource_t;

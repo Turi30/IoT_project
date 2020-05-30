@@ -45,15 +45,9 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
     unsigned int accept = -1;
     coap_get_header_accept(request, &accept);
 
-    if (accept == -1 || accept == TEXT_PLAIN) {
-        coap_set_header_content_format(response, TEXT_PLAIN);
-        snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "%.1f",
-                 humidity.value);
-
-        coap_set_payload(response, (uint8_t *)buffer, strlen((char *)buffer));
-    } else if (accept == APPLICATION_JSON) {
+    if (accept == APPLICATION_JSON) {
         coap_set_header_content_format(response, APPLICATION_JSON);
-        snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{'temperature':%.1f}",
+        snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{\"temperature\":%d}",
                  humidity.value);
 
         coap_set_payload(response, buffer, strlen((char *)buffer));

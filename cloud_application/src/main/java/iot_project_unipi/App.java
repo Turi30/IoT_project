@@ -15,10 +15,12 @@ import org.springframework.shell.jline.PromptProvider;
 public class App extends CoapServer {
 
     static public ArrayList<Resource> resources_array;
+    static public ArrayList<Room> rooms_array;
 
     public static void main(String[] args) {
         CaliforniumLogger.disableLogging();
         resources_array = new ArrayList<Resource>();
+        rooms_array = new ArrayList<Room>();
         App server = new App();
         server.add(new RegistrationResource("registration"));
         server.start();
