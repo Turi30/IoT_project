@@ -1,6 +1,9 @@
 package iot_project_unipi;
 
+import java.util.LinkedList;
+import java.util.Queue;
 import org.eclipse.californium.core.CoapClient;
+import org.eclipse.californium.core.CoapObserveRelation;
 
 public class Resource extends CoapClient {
     private String addr;
@@ -9,6 +12,9 @@ public class Resource extends CoapClient {
     private String methods;
     private boolean isObservable = false;
     private boolean isInRoom = false;
+    private Queue<String> observeQueue;
+    private int index_array = 0;
+    private CoapObserveRelation relation;
 
     public Resource(String addr, String content) {
         super();
@@ -24,6 +30,7 @@ public class Resource extends CoapClient {
         this.isObservable = content.contains("obs");
 
         this.setURI("coap://[" + this.addr + "]" + this.path);
+        this.observeQueue = new LinkedList<String>();
     }
 
     public String getAddr() {
@@ -60,6 +67,25 @@ public class Resource extends CoapClient {
 
     public boolean getInRoom() {
         return this.isInRoom;
+    }
+
+    public void insertObservePayload(String s) {
+        if (index_array == 20) {
+            this.observeQueue.poll();
+            index_array = 0;
+        }
+
+        index_array++;
+        this.observeQueue.add(s);
+
+    }
+
+    public Queue<String> getQueueObserve() {
+        return this.observeQueue;
+    }
+
+    public void setRelaton(CoapObserveRelation r){
+        this.relation = r;
     }
 
 }

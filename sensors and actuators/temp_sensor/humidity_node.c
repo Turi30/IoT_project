@@ -17,7 +17,7 @@
 #define SERVER_REGISTRATION ("/registration")
 
 extern coap_resource_t res_humidity;
-extern coap_resource_t res_humififier;
+extern coap_resource_t res_humidifier;
 
 static coap_message_type_t result = COAP_TYPE_RST;
 
@@ -39,7 +39,7 @@ PROCESS_THREAD(temp_sensor, ev, data) {
     LOG_INFO("Starting humidity node \n");
 
     coap_activate_resource(&res_humidity, "sensors/ambient/humidity");
-    coap_activate_resource(&res_humififier, "actuators/ambient/humidifier");
+    coap_activate_resource(&res_humidifier, "actuators/ambient/humidifier");
 
     coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
 

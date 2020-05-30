@@ -26,9 +26,9 @@ static void res_post_put_handler(coap_message_t *request,
 bool humidifier_mode = false;
 int humidifier_value = 0;
 
-RESOURCE(res_conditioner,
+RESOURCE(res_humidifier,
          "title=\"Conditioner actuator\";methods=\"GET/PUT/POST\", "
-         "mode=on|off&temperature=<value>\";rt=\"float\";obs\n",
+         "mode=on|off&humidity=<value>\";rt=\"float\"\n",
          res_get_handler, res_post_put_handler, res_post_put_handler, NULL);
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,
@@ -36,7 +36,8 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
                             int32_t *offset) {
 
     unsigned int accept = -1;
-    coap_get_header_accept(request, &accept);
+    if (!coap_get_header_accept(request, &accept))
+        accept = APPLICATION_JSON;
 
     if (accept == APPLICATION_JSON) {
         coap_set_header_content_format(response, APPLICATION_JSON);
@@ -47,7 +48,7 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
                      res_mode);
         else
             snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE,
-                     "{\"mode\":\"%s\", \"temperature\":%d}", res_mode,
+                     "{\"mode\":\"%s\", \"humidity\":%d}", res_mode,
                      humidifier_value);
 
         coap_set_payload(response, buffer, strlen((char *)buffer));
@@ -84,7 +85,7 @@ static void res_post_put_handler(coap_message_t *request,
     if (humidifier_mode == true) {
         if (success && (len = coap_get_variable_json(
                             (const char *)request->payload,
-                            request->payload_len, "\"temperature\"", &value))) {
+                            request->payload_len, "\"humidity\"", &value))) {
             humidifier_value = atoi(value);
         } else
             success = 0;

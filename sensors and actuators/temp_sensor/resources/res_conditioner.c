@@ -1,7 +1,7 @@
 #include "contiki.h"
 
-#include "common.h"
 #include "coap-engine.h"
+#include "common.h"
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,7 +28,7 @@ int conditioner_temperature = 0;
 
 RESOURCE(res_conditioner,
          "title=\"Conditioner actuator\";methods=\"GET/PUT/POST\", "
-         "mode=on|off&temperature=<value>\";rt=\"float\";obs\n",
+         "mode=on|off&temperature=<value>\";rt=\"float\"\n",
          res_get_handler, res_post_put_handler, res_post_put_handler, NULL);
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,
@@ -36,7 +36,8 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
                             int32_t *offset) {
 
     unsigned int accept = -1;
-    coap_get_header_accept(request, &accept);
+    if (!coap_get_header_accept(request, &accept))
+        accept = APPLICATION_JSON;
 
     if (accept == APPLICATION_JSON) {
         coap_set_header_content_format(response, APPLICATION_JSON);

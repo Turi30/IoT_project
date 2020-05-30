@@ -2,6 +2,7 @@ package iot_project_unipi;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Queue;
 import org.eclipse.californium.core.coap.MediaTypeRegistry;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
@@ -221,7 +222,8 @@ public class CommandsInterface {
                 return;
             }
 
-            String format = App.rooms_array.get(index_room).getResource(index_res).getPostPutFormat();
+            String format =
+                    App.rooms_array.get(index_room).getResource(index_res).getPostPutFormat();
 
             HashMap<String, Object> payload = new HashMap<>();
 
@@ -249,8 +251,9 @@ public class CommandsInterface {
                 }
             }
             echo(new JSONObject(payload).toJSONString());
-            App.rooms_array.get(index_room).getResource(index_res).post(new JSONObject(payload).toJSONString(),
-                    MediaTypeRegistry.APPLICATION_JSON, MediaTypeRegistry.APPLICATION_JSON);
+            App.rooms_array.get(index_room).getResource(index_res).post(
+                    new JSONObject(payload).toJSONString(), MediaTypeRegistry.APPLICATION_JSON,
+                    MediaTypeRegistry.APPLICATION_JSON);
         } catch (IOException e) {
             System.err.println(e);
         }
@@ -362,6 +365,44 @@ public class CommandsInterface {
             }
 
             App.rooms_array.get(index).printResourcesInRoom();
+        } catch (IOException e) {
+            System.err.println(e);
+        }
+    }
+
+    @ShellMethod("Print the last 20 values of the resource")
+    public void get_values_history() {
+        TerminalBuilder builder = TerminalBuilder.builder();
+        Terminal terminal;
+        try {
+            echo("Enter the number of the resource to get the data history: ");
+            terminal = builder.build();
+            LineReader reader = LineReaderBuilder.builder().terminal(terminal).build();
+            int index = Integer.parseInt(reader.readLine());
+            if (index >= App.resources_array.size()) {
+                echo("Index out of sensor indexes!");
+                return;
+            }
+
+            if (!App.resources_array.get(index).hasMethod("GET")) {
+                echo("This resource is not observable!");
+                return;
+            }
+
+            JSONParser parser = new JSONParser();
+            try {
+                Queue<String> q = App.resources_array.get(index).getQueueObserve();
+                echo("The last value are: ");
+                for (String s : q) {
+                    JSONObject jsonObject = (JSONObject) parser
+                            .parse(s);
+                    for (Object o : jsonObject.keySet()) {
+                        System.out.println(o + ": " + (jsonObject.get((String) o)));
+                    }
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         } catch (IOException e) {
             System.err.println(e);
         }
