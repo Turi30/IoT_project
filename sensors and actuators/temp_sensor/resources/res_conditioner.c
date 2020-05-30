@@ -1,6 +1,6 @@
 #include "contiki.h"
 
-//#include "../../resource.h"
+#include "common.h"
 #include "coap-engine.h"
 #include <limits.h>
 #include <stdio.h>
@@ -22,48 +22,12 @@ static void res_post_put_handler(coap_message_t *request,
                                  uint16_t preferred_size, int32_t *offset);
 
 #define MAX_AGE 60
-#define CHANGE 1
-#define TEMP_MAX 35
-#define TEMP_MIN 10
 
-static bool mode = false;
-static int temperature;
-
-static int coap_get_variable_json(const char *buffer, size_t length,
-                                  const char *name, const char **output) {
-    const char *start = NULL;
-    const char *end = NULL;
-    const char *value_end = NULL;
-    size_t name_len = 0;
-
-    /*initialize the output buffer first */
-    *output = 0;
-
-    name_len = strlen(name);
-    end = buffer + length;
-
-    for (start = buffer; start + name_len < end; ++start) {
-        if ((start == buffer || start[-1] == ',' || start[-1] == '{') &&
-            start[name_len] == ':' && strncmp(name, start, name_len) == 0) {
-
-            /* Point start to variable value */
-            start += name_len + 1;
-
-            /* Point end to the end of the value */
-            value_end = (const char *)memchr(start, ',', end - start);
-            if (value_end == NULL) {
-                value_end = end - 1;
-            }
-            *output = start;
-
-            return value_end - start;
-        }
-    }
-    return 0;
-}
+bool conditioner_mode = false;
+int conditioner_temperature = 0;
 
 RESOURCE(res_conditioner,
-         "title=\"conditioner\";methods=\"GET/PUT/POST\", "
+         "title=\"Conditioner actuator\";methods=\"GET/PUT/POST\", "
          "mode=on|off&temperature=<value>\";rt=\"float\";obs\n",
          res_get_handler, res_post_put_handler, res_post_put_handler, NULL);
 
@@ -77,19 +41,19 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
     if (accept == APPLICATION_JSON) {
         coap_set_header_content_format(response, APPLICATION_JSON);
 
-        char *res_mode = (mode == false) ? "off" : "on";
-        if (!mode)
+        char *res_mode = (conditioner_mode == false) ? "off" : "on";
+        if (!conditioner_mode)
             snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{\"mode\":\"%s\"}",
                      res_mode);
         else
             snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE,
                      "{\"mode\":\"%s\", \"temperature\":%d}", res_mode,
-                     temperature);
+                     conditioner_temperature);
 
         coap_set_payload(response, buffer, strlen((char *)buffer));
     } else {
         coap_set_status_code(response, NOT_ACCEPTABLE_4_06);
-        const char *msg = "Supporting content-types application/json";
+        const char *msg = "Supporting content-type application/json";
         coap_set_payload(response, msg, strlen(msg));
     }
 
@@ -106,23 +70,22 @@ static void res_post_put_handler(coap_message_t *request,
     const char *value = NULL;
     int success = 1;
 
-    LOG_DBG("Payload: %s\n", (char *)request->payload);
     if ((len = coap_get_variable_json((const char *)request->payload,
                                       request->payload_len, "\"mode\"",
                                       &value))) {
         if (strncmp(value, "\"on\"", len) == 0) {
-            mode = true;
+            conditioner_mode = true;
         } else if (strncmp(value, "\"off\"", len) == 0) {
-            mode = false;
+            conditioner_mode = false;
         } else
             success = 0;
     } else
         success = 0;
-    if (mode == true) {
+    if (conditioner_mode == true) {
         if (success && (len = coap_get_variable_json(
                             (const char *)request->payload,
                             request->payload_len, "\"temperature\"", &value))) {
-            temperature = atoi(value);
+            conditioner_temperature = atoi(value);
         } else
             success = 0;
     }

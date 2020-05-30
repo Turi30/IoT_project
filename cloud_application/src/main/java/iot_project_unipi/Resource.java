@@ -6,22 +6,20 @@ public class Resource extends CoapClient {
     private String addr;
     private String name;
     private String path;
-    private String resourceType;
     private String methods;
     private boolean isObservable = false;
     private boolean isInRoom = false;
 
-    public Resource(String addr, String content, String payload) {
+    public Resource(String addr, String content) {
         super();
 
         String[] content_split = content.split(";");
 
         this.addr = addr;
-        this.name = payload;
+        this.name = content_split[1].substring(content_split[1].indexOf("=") + 2,
+                content_split[1].lastIndexOf("\""));
         this.path = content_split[0].substring(content_split[0].indexOf("<") + 1,
                 content_split[0].indexOf(">"));
-        this.resourceType = content_split[1].substring(content_split[1].indexOf("=") + 2,
-                content_split[1].lastIndexOf("\""));
         this.methods = content_split[2];
         this.isObservable = content.contains("obs");
 
@@ -41,11 +39,7 @@ public class Resource extends CoapClient {
     }
 
     public String getPostPutFormat() {
-        return this.methods.substring(this.methods.indexOf(",")+2);
-    }
-
-    public String getResourceType() {
-        return this.resourceType;
+        return this.methods.substring(this.methods.indexOf(",") + 2);
     }
 
     public boolean hasMethod(String method) {
@@ -64,7 +58,7 @@ public class Resource extends CoapClient {
         this.isInRoom = b;
     }
 
-    public boolean getInRoom(){
+    public boolean getInRoom() {
         return this.isInRoom;
     }
 

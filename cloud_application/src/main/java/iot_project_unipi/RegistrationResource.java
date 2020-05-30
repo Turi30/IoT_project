@@ -12,7 +12,7 @@ public class RegistrationResource extends CoapResource {
         super(name);
     }
 
-    /*@Override
+    @Override
     public void handleGET(CoapExchange exchange) {
         exchange.accept();
 
@@ -23,11 +23,21 @@ public class RegistrationResource extends CoapResource {
                 new String("coap://[" + addr.toString().substring(1) + "]:5683/.well-known/core");
         CoapClient req = new CoapClient(uri);
 
-        String res = req.get().getResponseText();
+        String response = req.get().getResponseText().replace("</.well-known/core>;", "");
 
-        App.resources_array.add(new Resource(addr.toString().substring(1), res, payload));
-    }*/
+        for (String res : response.split("\n")) {
 
+            Resource new_resource = new Resource(addr.toString().substring(1), res);
+
+            for (int i = 0; i < App.resources_array.size(); i++)
+                if (new_resource.getAddr().equals(App.resources_array.get(i).getAddr())
+                        && new_resource.getPath().equals(App.resources_array.get(i).getPath()))
+                    return;
+
+            App.resources_array.add(new_resource);
+        }
+    }
+    /*
     @Override
     public void handlePOST(CoapExchange exchange) {
         exchange.accept();
@@ -51,12 +61,12 @@ public class RegistrationResource extends CoapResource {
                     return;
 
             App.resources_array.add(new_resource);
-        }
+        }*/
         /*
          * byte[] request = exchange.getRequestPayload(); String s = new String(request);
          * System.out.println(s);
          * 
          * exchange.respond(ResponseCode.CREATED);
-         */
-    }
+         *//*
+    }*/
 }

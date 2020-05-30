@@ -1,4 +1,4 @@
-CONTIKI_PROJECT = act
+CONTIKI_PROJECT = temperature_node humidity_node
 all: $(CONTIKI_PROJECT)
 
 
