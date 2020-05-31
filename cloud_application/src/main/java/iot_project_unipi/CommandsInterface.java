@@ -60,7 +60,7 @@ public class CommandsInterface {
         App.resources_array.get(index).renameResource(readLine());
     }
 
-    @ShellMethod("Get parameter of sensor or actuator in a specific room")
+    @ShellMethod("Get parameters of sensor or actuator in a specific room")
     public void get_parameter_local() {
 
         echo("Enter the number of the room: ");
@@ -96,7 +96,7 @@ public class CommandsInterface {
         }
     }
 
-    @ShellMethod("Get parameter of sensor or actuator in general")
+    @ShellMethod("Get parameters of sensor or actuator in general")
     public void get_parameter_global() {
 
         echo("Enter the number of the resource to get data: ");
@@ -125,7 +125,7 @@ public class CommandsInterface {
         }
     }
 
-    @ShellMethod("Post method")
+    @ShellMethod("Post method in general")
     public void post_method_global() {
 
         echo("Enter the number of the resource to post data: ");
@@ -174,7 +174,7 @@ public class CommandsInterface {
     }
 
 
-    @ShellMethod("Post method")
+    @ShellMethod("Post method in a specific room")
     public void post_method_local() {
 
         echo("Enter the number of the room: ");
@@ -265,7 +265,7 @@ public class CommandsInterface {
 
     }
 
-    @ShellMethod("Assign resource to a room")
+    @ShellMethod("Assign resource to a specific room")
     public void assign_room_resource() {
 
         echo("Enter the number of the room: ");
@@ -308,7 +308,7 @@ public class CommandsInterface {
         App.rooms_array.get(index).printResourcesInRoom();
     }
 
-    @ShellMethod("Print the last 20 values of the resource")
+    @ShellMethod("Print the last 20 values of the resource if this is observable")
     public void get_values_history() {
 
         echo("Enter the number of the resource to get the data history: ");

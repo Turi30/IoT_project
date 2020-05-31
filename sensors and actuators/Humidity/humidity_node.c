@@ -10,38 +10,36 @@
 /* Log configuration */
 #include "sys/log.h"
 
-#define LOG_MODULE "App"
+#define LOG_MODULE "Humidity node"
 #define LOG_LEVEL LOG_LEVEL_DBG
 
 #define SERVER_EP ("coap://[fd00::1]:5683")
 #define SERVER_REGISTRATION ("/registration")
 
-extern coap_resource_t res_temperature;
-extern coap_resource_t res_conditioner;
-extern coap_resource_t res_radiator;
+extern coap_resource_t res_humidity;
+extern coap_resource_t res_humidifier;
 
 static coap_message_type_t result = COAP_TYPE_RST;
 
-PROCESS(temperature_node, "Temperature Node");
-AUTOSTART_PROCESSES(&temperature_node);
+PROCESS(humidity_node, "Humidity Node");
+AUTOSTART_PROCESSES(&humidity_node);
 
 static void response_handler(coap_message_t *response) {
     LOG_DBG("Response %i\n", response->type);
     result = response->type;
 }
 
-PROCESS_THREAD(temperature_node, ev, data) {
+PROCESS_THREAD(humidity_node, ev, data) {
 
     static coap_endpoint_t server_ep;
     static coap_message_t request[1];
 
     PROCESS_BEGIN();
 
-    LOG_INFO("Starting temperature node\n");
+    LOG_INFO("Starting humidity node \n");
 
-    coap_activate_resource(&res_temperature, "sensors/ambient/temperature");
-    coap_activate_resource(&res_conditioner, "actuators/ambient/conditioner");
-    coap_activate_resource(&res_radiator, "actuators/ambient/radiator");
+    coap_activate_resource(&res_humidity, "sensors/ambient/humidity");
+    coap_activate_resource(&res_humidifier, "actuators/ambient/humidifier");
 
     coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
 

@@ -1,7 +1,7 @@
 #include "contiki.h"
 
 #include "coap-engine.h"
-#include "common.h"
+#include "../../common.h"
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,15 +21,20 @@ static void res_post_put_handler(coap_message_t *request,
                                  coap_message_t *response, uint8_t *buffer,
                                  uint16_t preferred_size, int32_t *offset);
 
+static void res_periodic_handler(void);
+
 #define MAX_AGE 60
 
 bool washing_machine_mode = false;
 enum program { SHORT, LONG } washing_machine_program = SHORT;
+static int counter = 0;
 
-RESOURCE(res_washing_machine,
-         "title=\"Dishwasher actuator\";methods=\"GET/PUT/POST\", "
-         "mode=on|off&program=short|medium|long\";rt=\"float\"\n",
-         res_get_handler, res_post_put_handler, res_post_put_handler, NULL);
+PERIODIC_RESOURCE(
+    res_washing_machine,
+    "title=\"Washing machine actuator\";methods=\"GET/PUT/POST\", "
+    "mode=on|off&program=short|medium|long\";rt=\"float\"\n",
+    res_get_handler, res_post_put_handler, res_post_put_handler, NULL, 1000,
+    res_periodic_handler);
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,
                             uint8_t *buffer, uint16_t preferred_size,
@@ -80,6 +85,7 @@ static void res_post_put_handler(coap_message_t *request,
             washing_machine_mode = true;
         } else if (strncmp(value, "\"off\"", len) == 0) {
             washing_machine_mode = false;
+            counter = 0;
         } else
             success = 0;
     } else
@@ -99,5 +105,22 @@ static void res_post_put_handler(coap_message_t *request,
     }
     if (!success) {
         coap_set_status_code(response, BAD_REQUEST_4_00);
+    }
+}
+
+#define SHORT_PROGRAM (30)
+#define LONG_PROGRAM (60)
+
+static void res_periodic_handler() {
+    if (counter == 0) {
+        if (washing_machine_mode && washing_machine_program == SHORT) {
+            counter = SHORT_PROGRAM;
+        } else if (washing_machine_mode && washing_machine_program == LONG) {
+            counter = LONG_PROGRAM;
+        }
+    } else {
+        counter--;
+        if (counter == 0)
+            washing_machine_mode = false;
     }
 }

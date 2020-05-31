@@ -1,6 +1,5 @@
 #include "contiki.h"
 
-//#include "../../resource.h"
 #include "coap-engine.h"
 #include <limits.h>
 #include <stdio.h>

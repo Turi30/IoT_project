@@ -1,7 +1,7 @@
 #include "contiki.h"
 
+#include "../../common.h"
 #include "coap-engine.h"
-#include "common.h"
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,7 +10,7 @@
 /* Log configuration */
 #include "sys/log.h"
 
-#define LOG_MODULE "Sensor"
+#define LOG_MODULE "Air purifier"
 #define LOG_LEVEL LOG_LEVEL_DBG
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,
@@ -23,12 +23,12 @@ static void res_post_put_handler(coap_message_t *request,
 
 #define MAX_AGE 60
 
-bool conditioner_mode = false;
-int conditioner_temperature = 0;
+bool air_purifier_mode = false;
+int air_purifier_value;
 
-RESOURCE(res_conditioner,
-         "title=\"Conditioner actuator\";methods=\"GET/PUT/POST\", "
-         "mode=on|off&temperature=<value>\";rt=\"float\"\n",
+RESOURCE(res_air_purifier,
+         "title=\"Air purifier actuator\";methods=\"GET/PUT/POST\", "
+         "mode=on|off&carbon dioxide=<value>\";rt=\"float\"\n",
          res_get_handler, res_post_put_handler, res_post_put_handler, NULL);
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,
@@ -42,14 +42,15 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
     if (accept == APPLICATION_JSON) {
         coap_set_header_content_format(response, APPLICATION_JSON);
 
-        char *res_mode = (conditioner_mode == false) ? "off" : "on";
-        if (!conditioner_mode)
+        char *res_mode = (air_purifier_mode == false) ? "off" : "on";
+
+        if (!air_purifier_mode)
             snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{\"mode\":\"%s\"}",
                      res_mode);
         else
             snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE,
-                     "{\"mode\":\"%s\", \"temperature\":%d}", res_mode,
-                     conditioner_temperature);
+                     "{\"mode\":\"%s\", \"carbon dioxide\":%d}", res_mode,
+                     air_purifier_value);
 
         coap_set_payload(response, buffer, strlen((char *)buffer));
     } else {
@@ -75,18 +76,19 @@ static void res_post_put_handler(coap_message_t *request,
                                       request->payload_len, "\"mode\"",
                                       &value))) {
         if (strncmp(value, "\"on\"", len) == 0) {
-            conditioner_mode = true;
+            air_purifier_mode = true;
         } else if (strncmp(value, "\"off\"", len) == 0) {
-            conditioner_mode = false;
+            air_purifier_mode = false;
         } else
             success = 0;
     } else
         success = 0;
-    if (conditioner_mode == true) {
-        if (success && (len = coap_get_variable_json(
-                            (const char *)request->payload,
-                            request->payload_len, "\"temperature\"", &value))) {
-            conditioner_temperature = atoi(value);
+    if (air_purifier_mode == true) {
+        if (success &&
+            (len = coap_get_variable_json((const char *)request->payload,
+                                          request->payload_len,
+                                          "\"carbon dioxide\"", &value))) {
+            air_purifier_value = atoi(value);
         } else
             success = 0;
     }

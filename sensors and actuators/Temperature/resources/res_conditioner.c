@@ -1,7 +1,7 @@
 #include "contiki.h"
 
 #include "coap-engine.h"
-#include "common.h"
+#include "../../common.h"
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,7 +10,7 @@
 /* Log configuration */
 #include "sys/log.h"
 
-#define LOG_MODULE "Dishwasher"
+#define LOG_MODULE "Sensor"
 #define LOG_LEVEL LOG_LEVEL_DBG
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,
@@ -23,12 +23,12 @@ static void res_post_put_handler(coap_message_t *request,
 
 #define MAX_AGE 60
 
-bool dishwasher_mode = false;
-enum program { SHORT, MEDIUM, LONG } dishwasher_program = SHORT;
+bool conditioner_mode = false;
+int conditioner_temperature = 0;
 
-RESOURCE(res_dishwasher,
-         "title=\"Dishwasher actuator\";methods=\"GET/PUT/POST\", "
-         "mode=on|off&program=short|medium|long\";rt=\"float\"\n",
+RESOURCE(res_conditioner,
+         "title=\"Conditioner actuator\";methods=\"GET/PUT/POST\", "
+         "mode=on|off&temperature=<value>\";rt=\"float\"\n",
          res_get_handler, res_post_put_handler, res_post_put_handler, NULL);
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,
@@ -42,18 +42,14 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
     if (accept == APPLICATION_JSON) {
         coap_set_header_content_format(response, APPLICATION_JSON);
 
-        char *res_mode = (dishwasher_mode == false) ? "off" : "on";
-        char *res_program =
-            (dishwasher_program == SHORT)
-                ? "short"
-                : (dishwasher_program == MEDIUM) ? "medium" : "long";
-        if (!dishwasher_mode)
+        char *res_mode = (conditioner_mode == false) ? "off" : "on";
+        if (!conditioner_mode)
             snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{\"mode\":\"%s\"}",
                      res_mode);
         else
             snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE,
-                     "{\"mode\":\"%s\", \"program\":\"%s\"}", res_mode,
-                     res_program);
+                     "{\"mode\":\"%s\", \"temperature\":%d}", res_mode,
+                     conditioner_temperature);
 
         coap_set_payload(response, buffer, strlen((char *)buffer));
     } else {
@@ -79,25 +75,18 @@ static void res_post_put_handler(coap_message_t *request,
                                       request->payload_len, "\"mode\"",
                                       &value))) {
         if (strncmp(value, "\"on\"", len) == 0) {
-            dishwasher_mode = true;
+            conditioner_mode = true;
         } else if (strncmp(value, "\"off\"", len) == 0) {
-            dishwasher_mode = false;
+            conditioner_mode = false;
         } else
             success = 0;
     } else
         success = 0;
-    if (dishwasher_mode == true) {
+    if (conditioner_mode == true) {
         if (success && (len = coap_get_variable_json(
                             (const char *)request->payload,
-                            request->payload_len, "\"program\"", &value))) {
-            if (strncmp(value, "\"short\"", len) == 0) {
-                dishwasher_program = SHORT;
-            } else if (strncmp(value, "\"medium\"", len) == 0) {
-                dishwasher_program = MEDIUM;
-            } else if (strncmp(value, "\"long\"", len) == 0) {
-                dishwasher_program = LONG;
-            } else
-                success = 0;
+                            request->payload_len, "\"temperature\"", &value))) {
+            conditioner_temperature = atoi(value);
         } else
             success = 0;
     }

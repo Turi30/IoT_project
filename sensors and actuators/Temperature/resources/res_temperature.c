@@ -1,6 +1,5 @@
 #include "contiki.h"
 
-//#include "../../resource.h"
 #include "coap-engine.h"
 #include <limits.h>
 #include <stdio.h>
@@ -79,7 +78,7 @@ static void res_periodic_handler() {
         temperature -= ((float)rand() / RAND_MAX) * (OFFSET_VALUE);
     else if (temperature < radiator_temperature ||
              temperature < conditioner_temperature)
-        temperature += ((float)rand() / RAND_MAX) * (OFFSET_VALUE);;
+        temperature += ((float)rand() / RAND_MAX) * (OFFSET_VALUE);
 
     coap_notify_observers(&res_temperature);
 }
