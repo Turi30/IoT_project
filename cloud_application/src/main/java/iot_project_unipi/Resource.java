@@ -3,7 +3,9 @@ package iot_project_unipi;
 import java.util.LinkedList;
 import java.util.Queue;
 import org.eclipse.californium.core.CoapClient;
+import org.eclipse.californium.core.CoapHandler;
 import org.eclipse.californium.core.CoapObserveRelation;
+import org.eclipse.californium.core.CoapResponse;
 
 public class Resource extends CoapClient {
     private String addr;
@@ -12,9 +14,8 @@ public class Resource extends CoapClient {
     private String methods;
     private boolean isObservable = false;
     private boolean isInRoom = false;
-    private Queue<String> observeQueue;
-    private int index_array = 0;
     private CoapObserveRelation relation;
+    private CoapHandlerObs handlerObs;
 
     public Resource(String addr, String content) {
         super();
@@ -30,7 +31,10 @@ public class Resource extends CoapClient {
         this.isObservable = content.contains("obs");
 
         this.setURI("coap://[" + this.addr + "]" + this.path);
-        this.observeQueue = new LinkedList<String>();
+        if (this.isObservable) {
+            this.handlerObs = new CoapHandlerObs();
+            this.relation = this.observe(this.handlerObs);
+        }
     }
 
     public String getAddr() {
@@ -69,23 +73,9 @@ public class Resource extends CoapClient {
         return this.isInRoom;
     }
 
-    public void insertObservePayload(String s) {
-        if (index_array == 20) {
-            this.observeQueue.poll();
-            index_array = 0;
-        }
-
-        index_array++;
-        this.observeQueue.add(s);
-
-    }
-
     public Queue<String> getQueueObserve() {
-        return this.observeQueue;
-    }
+        return this.handlerObs.getQueue();
 
-    public void setRelaton(CoapObserveRelation r){
-        this.relation = r;
     }
 
 }

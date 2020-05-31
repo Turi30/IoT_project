@@ -7,7 +7,6 @@ import org.eclipse.californium.core.CoapHandler;
 import org.eclipse.californium.core.CoapObserveRelation;
 import org.eclipse.californium.core.CoapResource;
 import org.eclipse.californium.core.CoapResponse;
-import org.eclipse.californium.core.coap.CoAP.ResponseCode;
 import org.eclipse.californium.core.server.resources.CoapExchange;
 
 public class RegistrationResource extends CoapResource {
@@ -20,7 +19,6 @@ public class RegistrationResource extends CoapResource {
         exchange.accept();
 
         InetAddress addr = exchange.getSourceAddress();
-        String payload = exchange.getRequestText();
 
         String uri =
                 new String("coap://[" + addr.toString().substring(1) + "]:5683/.well-known/core");
@@ -36,7 +34,7 @@ public class RegistrationResource extends CoapResource {
                 if (new_resource.getAddr().equals(App.resources_array.get(i).getAddr())
                         && new_resource.getPath().equals(App.resources_array.get(i).getPath()))
                     return;
-
+/*
             if (new_resource.isObservable()) {
                 CoapObserveRelation relation = new_resource.observe(new CoapHandler() {
 
@@ -52,7 +50,7 @@ public class RegistrationResource extends CoapResource {
                 });
                 new_resource.setRelaton(relation);
             }
-
+*/
             App.resources_array.add(new_resource);
         }
     }
