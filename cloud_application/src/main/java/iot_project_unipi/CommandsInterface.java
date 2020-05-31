@@ -142,6 +142,7 @@ public class CommandsInterface {
         }
 
         String format = App.resources_array.get(index).getPostPutFormat();
+        format = format.replace("\"", "");
 
         HashMap<String, Object> payload = new HashMap<>();
 
@@ -167,7 +168,7 @@ public class CommandsInterface {
                 payload.put(key, value);
             }
         }
-        echo(new JSONObject(payload).toJSONString());
+
         App.resources_array.get(index).post(new JSONObject(payload).toJSONString(),
                 MediaTypeRegistry.APPLICATION_JSON, MediaTypeRegistry.APPLICATION_JSON);
     }
@@ -196,6 +197,7 @@ public class CommandsInterface {
         }
 
         String format = App.rooms_array.get(index_room).getResource(index_res).getPostPutFormat();
+        format = format.replace("\"", "");
 
         HashMap<String, Object> payload = new HashMap<>();
 
@@ -221,7 +223,7 @@ public class CommandsInterface {
                 payload.put(key, value);
             }
         }
-        echo(new JSONObject(payload).toJSONString());
+        
         App.rooms_array.get(index_room).getResource(index_res).post(
                 new JSONObject(payload).toJSONString(), MediaTypeRegistry.APPLICATION_JSON,
                 MediaTypeRegistry.APPLICATION_JSON);
@@ -324,13 +326,22 @@ public class CommandsInterface {
         JSONParser parser = new JSONParser();
         try {
             Queue<String> q = App.resources_array.get(index).getQueueObserve();
-            echo("The last value are: ");
+            System.out.print("The last values of the ");
             for (String s : q) {
                 JSONObject jsonObject = (JSONObject) parser.parse(s);
                 for (Object o : jsonObject.keySet()) {
-                    System.out.println(o + ": " + (jsonObject.get((String) o)));
+                    System.out.print(o + " are: ");
+                    break;
+                }
+                break;
+            }
+            for (String s : q) {
+                JSONObject jsonObject = (JSONObject) parser.parse(s);
+                for (Object o : jsonObject.keySet()) {
+                    System.out.print(jsonObject.get((String) o) + " ");
                 }
             }
+            echo("");
         } catch (ParseException e) {
             e.printStackTrace();
         }

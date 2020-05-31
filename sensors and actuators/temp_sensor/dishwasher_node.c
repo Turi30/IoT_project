@@ -16,30 +16,28 @@
 #define SERVER_EP ("coap://[fd00::1]:5683")
 #define SERVER_REGISTRATION ("/registration")
 
-extern coap_resource_t res_humidity;
-extern coap_resource_t res_humidifier;
+extern coap_resource_t res_dishwasher;
 
 static coap_message_type_t result = COAP_TYPE_RST;
 
-PROCESS(humidity_node, "Temperature and humiditySensor");
-AUTOSTART_PROCESSES(&humidity_node);
+PROCESS(dishwasher_node, "Dishwasher Node");
+AUTOSTART_PROCESSES(&dishwasher_node);
 
 static void response_handler(coap_message_t *response) {
     LOG_DBG("Response %i\n", response->type);
     result = response->type;
 }
 
-PROCESS_THREAD(humidity_node, ev, data) {
+PROCESS_THREAD(dishwasher_node, ev, data) {
 
     static coap_endpoint_t server_ep;
     static coap_message_t request[1];
 
     PROCESS_BEGIN();
 
-    LOG_INFO("Starting humidity node \n");
+    LOG_INFO("Starting temperature node\n");
 
-    coap_activate_resource(&res_humidity, "sensors/ambient/humidity");
-    coap_activate_resource(&res_humidifier, "actuators/ambient/humidifier");
+    coap_activate_resource(&res_dishwasher, "actuators/ambient/dishwasher");
 
     coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
 

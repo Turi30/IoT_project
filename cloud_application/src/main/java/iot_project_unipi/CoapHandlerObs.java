@@ -20,8 +20,7 @@ public class CoapHandlerObs implements CoapHandler {
         if (!response.getOptions().isContentFormat(MediaTypeRegistry.APPLICATION_JSON))
             return;
 
-
-        if (this.observeQueue.size() == 20) {
+        if (this.observeQueue.size() == this.max_index_array) {
             this.observeQueue.poll();
         }
 

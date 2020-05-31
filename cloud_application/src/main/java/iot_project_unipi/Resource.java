@@ -1,11 +1,8 @@
 package iot_project_unipi;
 
-import java.util.LinkedList;
 import java.util.Queue;
 import org.eclipse.californium.core.CoapClient;
-import org.eclipse.californium.core.CoapHandler;
 import org.eclipse.californium.core.CoapObserveRelation;
-import org.eclipse.californium.core.CoapResponse;
 
 public class Resource extends CoapClient {
     private String addr;

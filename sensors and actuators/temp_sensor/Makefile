@@ -1,4 +1,4 @@
-CONTIKI_PROJECT = temperature_node humidity_node
+CONTIKI_PROJECT = temperature_node humidity_node dishwasher_node
 all: $(CONTIKI_PROJECT)
 
 

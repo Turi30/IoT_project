@@ -1,7 +1,7 @@
 #include "contiki.h"
 
-#include "common.h"
 #include "coap-engine.h"
+#include "common.h"
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,12 +23,12 @@ static void res_post_put_handler(coap_message_t *request,
 
 #define MAX_AGE 60
 
-bool humidifier_mode = false;
-int humidifier_value = 0;
+bool radiator_mode = false;
+int radiator_temperature = 0;
 
-RESOURCE(res_humidifier,
-         "title=\"Humidifier actuator\";methods=\"GET/PUT/POST\", "
-         "mode=on|off&humidity=<value>\";rt=\"float\"\n",
+RESOURCE(res_radiator,
+         "title=\"Radiator actuator\";methods=\"GET/PUT/POST\", "
+         "mode=on|off&temperature=<value>\";rt=\"float\"\n",
          res_get_handler, res_post_put_handler, res_post_put_handler, NULL);
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,
@@ -42,14 +42,14 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
     if (accept == APPLICATION_JSON) {
         coap_set_header_content_format(response, APPLICATION_JSON);
 
-        char *res_mode = (humidifier_mode == false) ? "off" : "on";
-        if (!humidifier_mode)
+        char *res_mode = (radiator_mode == false) ? "off" : "on";
+        if (!radiator_mode)
             snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{\"mode\":\"%s\"}",
                      res_mode);
         else
             snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE,
-                     "{\"mode\":\"%s\", \"humidity\":%d}", res_mode,
-                     humidifier_value);
+                     "{\"mode\":\"%s\", \"temperature\":%d}", res_mode,
+                     radiator_temperature);
 
         coap_set_payload(response, buffer, strlen((char *)buffer));
     } else {
@@ -75,18 +75,18 @@ static void res_post_put_handler(coap_message_t *request,
                                       request->payload_len, "\"mode\"",
                                       &value))) {
         if (strncmp(value, "\"on\"", len) == 0) {
-            humidifier_mode = true;
+            radiator_mode = true;
         } else if (strncmp(value, "\"off\"", len) == 0) {
-            humidifier_mode = false;
+            radiator_mode = false;
         } else
             success = 0;
     } else
         success = 0;
-    if (humidifier_mode == true) {
+    if (radiator_mode == true) {
         if (success && (len = coap_get_variable_json(
                             (const char *)request->payload,
-                            request->payload_len, "\"humidity\"", &value))) {
-            humidifier_value = atoi(value);
+                            request->payload_len, "\"temperature\"", &value))) {
+            radiator_temperature = atoi(value);
         } else
             success = 0;
     }

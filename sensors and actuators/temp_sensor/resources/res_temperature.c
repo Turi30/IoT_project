@@ -31,6 +31,8 @@ static float temperature = -1;
 
 extern int conditioner_temperature;
 extern bool conditioner_mode;
+extern int radiator_temperature;
+extern bool radiator_mode;
 
 PERIODIC_RESOURCE(
     res_temperature,
@@ -68,15 +70,16 @@ static void res_periodic_handler() {
         temperature =
             ((float)rand() / RAND_MAX) * (TEMP_MAX - TEMP_MIN) + TEMP_MIN;
 
-    if (!conditioner_mode)
+    if (!conditioner_mode && !radiator_mode)
         temperature +=
             (((float)rand() / RAND_MAX) > PROBABILITY_UPDATE)
                 ? ((float)rand() / RAND_MAX) * (2 * OFFSET_VALUE) - OFFSET_VALUE
                 : 0;
     else if (temperature > conditioner_temperature)
-        temperature -= OFFSET_VALUE * PROBABILITY_UPDATE;
-    else
-        temperature += OFFSET_VALUE * PROBABILITY_UPDATE;
+        temperature -= ((float)rand() / RAND_MAX) * (OFFSET_VALUE);
+    else if (temperature < radiator_temperature ||
+             temperature < conditioner_temperature)
+        temperature += ((float)rand() / RAND_MAX) * (OFFSET_VALUE);;
 
     coap_notify_observers(&res_temperature);
 }

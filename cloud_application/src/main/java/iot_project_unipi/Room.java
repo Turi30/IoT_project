@@ -2,7 +2,7 @@ package iot_project_unipi;
 
 import java.util.ArrayList;
 
-public class Room extends ArrayList {
+public class Room {
     private String name;
     private ArrayList<Resource> room_resources_array;
 

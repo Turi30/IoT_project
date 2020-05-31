@@ -71,9 +71,9 @@ static void res_periodic_handler() {
                 ? ((float)rand() / RAND_MAX) * (2 * OFFSET_VALUE) - OFFSET_VALUE
                 : 0;
     else if (humidity < humidifier_value)
-        humidity += OFFSET_VALUE * PROBABILITY_UPDATE;
+        humidity += ((float)rand() / RAND_MAX) * (OFFSET_VALUE);
     else
-        humidity -= OFFSET_VALUE * PROBABILITY_UPDATE;
+        humidity -= ((float)rand() / RAND_MAX) * (OFFSET_VALUE);
 
     coap_notify_observers(&res_humidity);
 }

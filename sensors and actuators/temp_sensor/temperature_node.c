@@ -18,19 +18,19 @@
 
 extern coap_resource_t res_temperature;
 extern coap_resource_t res_conditioner;
-//extern coap_resource_t res_radiator;
+extern coap_resource_t res_radiator;
 
 static coap_message_type_t result = COAP_TYPE_RST;
 
-PROCESS(temp_sensor, "Temperature and humiditySensor");
-AUTOSTART_PROCESSES(&temp_sensor);
+PROCESS(temperature_node, "Temperature Node");
+AUTOSTART_PROCESSES(&temperature_node);
 
 static void response_handler(coap_message_t *response) {
     LOG_DBG("Response %i\n", response->type);
     result = response->type;
 }
 
-PROCESS_THREAD(temp_sensor, ev, data) {
+PROCESS_THREAD(temperature_node, ev, data) {
 
     static coap_endpoint_t server_ep;
     static coap_message_t request[1];
@@ -41,7 +41,7 @@ PROCESS_THREAD(temp_sensor, ev, data) {
 
     coap_activate_resource(&res_temperature, "sensors/ambient/temperature");
     coap_activate_resource(&res_conditioner, "actuators/ambient/conditioner");
-    //coap_activate_resource(&res_radiator, "actuators/ambient/radiator");
+    coap_activate_resource(&res_radiator, "actuators/ambient/radiator");
 
     coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
 

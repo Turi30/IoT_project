@@ -1,7 +1,7 @@
 #include "contiki.h"
 
-#include "common.h"
 #include "coap-engine.h"
+#include "common.h"
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,7 +10,7 @@
 /* Log configuration */
 #include "sys/log.h"
 
-#define LOG_MODULE "Sensor"
+#define LOG_MODULE "Dishwasher"
 #define LOG_LEVEL LOG_LEVEL_DBG
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,
@@ -23,12 +23,12 @@ static void res_post_put_handler(coap_message_t *request,
 
 #define MAX_AGE 60
 
-bool humidifier_mode = false;
-int humidifier_value = 0;
+bool washing_machine_mode = false;
+enum program { SHORT, LONG } washing_machine_program = SHORT;
 
-RESOURCE(res_humidifier,
-         "title=\"Humidifier actuator\";methods=\"GET/PUT/POST\", "
-         "mode=on|off&humidity=<value>\";rt=\"float\"\n",
+RESOURCE(res_washing_machine,
+         "title=\"Dishwasher actuator\";methods=\"GET/PUT/POST\", "
+         "mode=on|off&program=short|medium|long\";rt=\"float\"\n",
          res_get_handler, res_post_put_handler, res_post_put_handler, NULL);
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,
@@ -42,14 +42,16 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
     if (accept == APPLICATION_JSON) {
         coap_set_header_content_format(response, APPLICATION_JSON);
 
-        char *res_mode = (humidifier_mode == false) ? "off" : "on";
-        if (!humidifier_mode)
+        char *res_mode = (washing_machine_mode == false) ? "off" : "on";
+        char *res_program =
+            (washing_machine_program == SHORT) ? "short" : "long";
+        if (!washing_machine_mode)
             snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{\"mode\":\"%s\"}",
                      res_mode);
         else
             snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE,
-                     "{\"mode\":\"%s\", \"humidity\":%d}", res_mode,
-                     humidifier_value);
+                     "{\"mode\":\"%s\", \"program\":\"%s\"}", res_mode,
+                     res_program);
 
         coap_set_payload(response, buffer, strlen((char *)buffer));
     } else {
@@ -75,18 +77,23 @@ static void res_post_put_handler(coap_message_t *request,
                                       request->payload_len, "\"mode\"",
                                       &value))) {
         if (strncmp(value, "\"on\"", len) == 0) {
-            humidifier_mode = true;
+            washing_machine_mode = true;
         } else if (strncmp(value, "\"off\"", len) == 0) {
-            humidifier_mode = false;
+            washing_machine_mode = false;
         } else
             success = 0;
     } else
         success = 0;
-    if (humidifier_mode == true) {
+    if (washing_machine_mode == true) {
         if (success && (len = coap_get_variable_json(
                             (const char *)request->payload,
-                            request->payload_len, "\"humidity\"", &value))) {
-            humidifier_value = atoi(value);
+                            request->payload_len, "\"program\"", &value))) {
+            if (strncmp(value, "\"short\"", len) == 0) {
+                washing_machine_program = SHORT;
+            } else if (strncmp(value, "\"long\"", len) == 0) {
+                washing_machine_program = LONG;
+            } else
+                success = 0;
         } else
             success = 0;
     }
