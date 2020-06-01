@@ -148,7 +148,7 @@ public class CommandsInterface {
 
         for (String s : format.split("&")) {
             if (s.contains("|")) {
-                boolean correct_input;
+                boolean correct_input = false;
                 echo("Select one of the following options for the "
                         + s.substring(0, s.indexOf("=")));
                 echo("[" + s.substring(s.indexOf("=") + 1) + "]");
