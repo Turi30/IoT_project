@@ -25,6 +25,8 @@ PROCESS(dishwasher_node, "Air Quality Node");
 AUTOSTART_PROCESSES(&dishwasher_node);
 
 static void response_handler(coap_message_t *response) {
+    if (response == NULL)
+        return;
     LOG_DBG("Response %i\n", response->type);
     result = response->type;
 }
@@ -38,17 +40,17 @@ PROCESS_THREAD(dishwasher_node, ev, data) {
 
     LOG_INFO("Starting temperature node\n");
 
-    coap_activate_resource(&res_air_purifier, "actuators/ambient/dishwasher");
-    coap_activate_resource(&res_air_quality, "actuators/ambient/dishwasher");
+    coap_activate_resource(&res_air_purifier, "actuators/ambient/air_purifier");
+    coap_activate_resource(&res_air_quality, "actuators/ambient/air_quality");
 
     coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
 
     do {
-        coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
-        coap_set_header_uri_path(request, (const char *)&SERVER_REGISTRATION);
-        // coap_set_payload(request, payload, strlen(payload) + 1);
+    coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
+    coap_set_header_uri_path(request, (const char *)&SERVER_REGISTRATION);
+    // coap_set_payload(request, payload, strlen(payload) + 1);
 
-        COAP_BLOCKING_REQUEST(&server_ep, request, response_handler);
+    COAP_BLOCKING_REQUEST(&server_ep, request, response_handler);
     } while (result == COAP_TYPE_RST);
 
     PROCESS_END();

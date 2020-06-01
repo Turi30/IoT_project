@@ -19,15 +19,27 @@ public class App extends CoapServer {
 
     public static void main(String[] args) {
         CaliforniumLogger.disableLogging();
+
+        // Initialize the resources arrray
         resources_array = new ArrayList<Resource>();
+        // Initialize the rooms array
         rooms_array = new ArrayList<Room>();
+
+        // Create a new instance of the application
         App server = new App();
+        // Create and assign a new server to receive the registration requests
         server.add(new RegistrationResource("registration"));
+        // Start the server
         server.start();
+
+        // Start the shell to receive commands
         SpringApplication.run(App.class, args);
+
+        // Close and destroy the server
         server.destroy();
     }
 
+    // Change the prompt of the Spring shell
     @Bean
     public PromptProvider CustomPromptProvider() {
         return () -> new org.jline.utils.AttributedString("CloudApplication:>",

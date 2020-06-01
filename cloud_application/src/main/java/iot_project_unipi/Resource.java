@@ -4,6 +4,10 @@ import java.util.Queue;
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapObserveRelation;
 
+/*
+ * Class resource that extends the CoapClient class to add new util information to develop the
+ * project task
+ */
 public class Resource extends CoapClient {
     private String addr;
     private String name;
@@ -28,6 +32,9 @@ public class Resource extends CoapClient {
         this.isObservable = content.contains("obs");
 
         this.setURI("coap://[" + this.addr + "]" + this.path);
+
+        // If the resource is observable, create the CoapHandlerObs to receive the notify from the
+        // server
         if (this.isObservable) {
             this.handlerObs = new CoapHandlerObs();
             this.relation = this.observe(this.handlerObs);

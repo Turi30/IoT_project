@@ -72,7 +72,7 @@ public class CommandsInterface {
 
         echo("Enter the number of the resource to get data: ");
         int index_res = Integer.parseInt(readLine());
-        if (index_res >= App.rooms_array.get(index_room).getNumberResources()) {
+        if (index_res >= App.rooms_array.get(index_room).getResourcesNumber()) {
             echo("Index out of sensor indexes!");
             return;
         }
@@ -148,14 +148,22 @@ public class CommandsInterface {
 
         for (String s : format.split("&")) {
             if (s.contains("|")) {
+                boolean correct_input;
                 echo("Select one of the following options for the "
                         + s.substring(0, s.indexOf("=")));
                 echo("[" + s.substring(s.indexOf("=") + 1) + "]");
                 String input = readLine();
-                /*
-                 * if (!s.substring(s.indexOf("=") + 1).contains(input)) {
-                 * echo("Wrong parameter! Retry"); return; }
-                 */
+
+                for (String opt : s.substring(s.indexOf("=") + 1).split("\\|"))
+                    if (opt.equals(input)) {
+                        correct_input = true;
+                        break;
+                    }
+                if (!correct_input) {
+                    echo("Wrong parameter! Retry");
+                    return;
+                }
+
                 String key = s.substring(0, s.indexOf("="));
                 Object value = input;
                 payload.put(key, value);
@@ -186,7 +194,7 @@ public class CommandsInterface {
 
         echo("Enter the number of the resource to post data: ");
         int index_res = Integer.parseInt(readLine());
-        if (index_res >= App.rooms_array.get(index_room).getNumberResources()) {
+        if (index_res >= App.rooms_array.get(index_room).getResourcesNumber()) {
             echo("Index out of sensor indexes!");
             return;
         }
@@ -203,14 +211,22 @@ public class CommandsInterface {
 
         for (String s : format.split("&")) {
             if (s.contains("|")) {
+                boolean correct_input = false;
                 echo("Select one of the following options for the "
                         + s.substring(0, s.indexOf("=")));
                 echo("[" + s.substring(s.indexOf("=") + 1) + "]");
                 String input = readLine();
-                /*
-                 * if (!s.substring(s.indexOf("=") + 1).contains(input)) {
-                 * echo("Wrong parameter! Retry"); return; }
-                 */
+
+                for (String opt : s.substring(s.indexOf("=") + 1).split("\\|"))
+                    if (opt.equals(input)) {
+                        correct_input = true;
+                        break;
+                    }
+                if (!correct_input) {
+                    echo("Wrong parameter! Retry");
+                    return;
+                }
+
                 String key = s.substring(0, s.indexOf("="));
                 Object value = input;
                 payload.put(key, value);
@@ -223,7 +239,7 @@ public class CommandsInterface {
                 payload.put(key, value);
             }
         }
-        
+
         App.rooms_array.get(index_room).getResource(index_res).post(
                 new JSONObject(payload).toJSONString(), MediaTypeRegistry.APPLICATION_JSON,
                 MediaTypeRegistry.APPLICATION_JSON);
@@ -292,6 +308,8 @@ public class CommandsInterface {
         App.resources_array.get(index_res).setInRoom(true);
         Resource r = App.resources_array.get(index_res);
         App.rooms_array.get(index_room).addResourceInRoom(r);
+        echo(App.resources_array.get(index_res).getName() + " assigned to the "
+                + App.rooms_array.get(index_room).getName());;
     }
 
     @ShellMethod("Print all the resources inside a room")

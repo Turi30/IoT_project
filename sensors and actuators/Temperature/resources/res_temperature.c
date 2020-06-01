@@ -11,7 +11,7 @@
 /* Log configuration */
 #include "sys/log.h"
 
-#define LOG_MODULE "Sensor"
+#define LOG_MODULE "Temperature sensor"
 #define LOG_LEVEL LOG_LEVEL_DBG
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,

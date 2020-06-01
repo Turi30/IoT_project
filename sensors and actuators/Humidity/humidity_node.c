@@ -25,6 +25,8 @@ PROCESS(humidity_node, "Humidity Node");
 AUTOSTART_PROCESSES(&humidity_node);
 
 static void response_handler(coap_message_t *response) {
+    if (response == NULL)
+        return;
     LOG_DBG("Response %i\n", response->type);
     result = response->type;
 }

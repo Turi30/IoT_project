@@ -10,7 +10,7 @@
 /* Log configuration */
 #include "sys/log.h"
 
-#define LOG_MODULE "App"
+#define LOG_MODULE "Dishwasher node"
 #define LOG_LEVEL LOG_LEVEL_DBG
 
 #define SERVER_EP ("coap://[fd00::1]:5683")
@@ -24,6 +24,8 @@ PROCESS(dishwasher_node, "Dishwasher Node");
 AUTOSTART_PROCESSES(&dishwasher_node);
 
 static void response_handler(coap_message_t *response) {
+    if (response == NULL)
+        return;
     LOG_DBG("Response %i\n", response->type);
     result = response->type;
 }
@@ -44,7 +46,7 @@ PROCESS_THREAD(dishwasher_node, ev, data) {
     do {
         coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
         coap_set_header_uri_path(request, (const char *)&SERVER_REGISTRATION);
-        //coap_set_payload(request, payload, strlen(payload) + 1);
+        // coap_set_payload(request, payload, strlen(payload) + 1);
 
         COAP_BLOCKING_REQUEST(&server_ep, request, response_handler);
     } while (result == COAP_TYPE_RST);

@@ -10,7 +10,7 @@
 /* Log configuration */
 #include "sys/log.h"
 
-#define LOG_MODULE "Dishwasher"
+#define LOG_MODULE "Washing machine"
 #define LOG_LEVEL LOG_LEVEL_DBG
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,

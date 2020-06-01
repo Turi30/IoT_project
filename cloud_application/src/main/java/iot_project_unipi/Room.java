@@ -21,7 +21,7 @@ public class Room {
         return this.name;
     }
 
-    public int getNumberResources() {
+    public int getResourcesNumber() {
         return this.room_resources_array.size();
     }
 
@@ -34,6 +34,7 @@ public class Room {
     }
 
     public void printResourcesInRoom() {
+        System.out.println("The resources in the " + this.getName() + " are:");
         for (int i = 0; i < this.room_resources_array.size(); i++)
             System.out.println(i + ": " + this.room_resources_array.get(i).getName());
     }

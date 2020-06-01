@@ -9,7 +9,7 @@
 /* Log configuration */
 #include "sys/log.h"
 
-#define LOG_MODULE "Sensor"
+#define LOG_MODULE "Humidity sensor"
 #define LOG_LEVEL LOG_LEVEL_INFO
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,

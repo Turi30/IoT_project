@@ -21,15 +21,23 @@ static void res_post_put_handler(coap_message_t *request,
                                  coap_message_t *response, uint8_t *buffer,
                                  uint16_t preferred_size, int32_t *offset);
 
+static void res_periodic_handler(void);
+
 #define MAX_AGE 60
 
 bool air_purifier_mode = false;
+bool force_off = false;
+bool post_on = false;
 int air_purifier_value;
 
-RESOURCE(res_air_purifier,
-         "title=\"Air purifier actuator\";methods=\"GET/PUT/POST\", "
-         "mode=on|off&carbon dioxide=<value>\";rt=\"float\"\n",
-         res_get_handler, res_post_put_handler, res_post_put_handler, NULL);
+extern float carbon_dioxide;
+
+PERIODIC_RESOURCE(
+    res_air_purifier,
+    "title=\"Air purifier actuator\";methods=\"GET/PUT/POST\", "
+    "mode=on|off&recommended carbon dioxide[1e-3]=<value>\";rt=\"float\"\n",
+    res_get_handler, res_post_put_handler, res_post_put_handler, NULL, 5000,
+    res_periodic_handler);
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,
                             uint8_t *buffer, uint16_t preferred_size,
@@ -48,9 +56,10 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
             snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{\"mode\":\"%s\"}",
                      res_mode);
         else
-            snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE,
-                     "{\"mode\":\"%s\", \"carbon dioxide\":%d}", res_mode,
-                     air_purifier_value);
+            snprintf(
+                (char *)buffer, COAP_MAX_CHUNK_SIZE,
+                "{\"mode\":\"%s\", \"recommended carbon dioxide[1e-3]\":%d}",
+                res_mode, air_purifier_value);
 
         coap_set_payload(response, buffer, strlen((char *)buffer));
     } else {
@@ -60,9 +69,6 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
     }
 
     coap_set_header_max_age(response, MAX_AGE);
-
-    /* The coap_subscription_handler() will be called for observable resources
-     * by the coap_framework. */
 }
 
 static void res_post_put_handler(coap_message_t *request,
@@ -76,8 +82,12 @@ static void res_post_put_handler(coap_message_t *request,
                                       request->payload_len, "\"mode\"",
                                       &value))) {
         if (strncmp(value, "\"on\"", len) == 0) {
+            post_on = true;
+            force_off = false;
             air_purifier_mode = true;
         } else if (strncmp(value, "\"off\"", len) == 0) {
+            if (!post_on)
+                force_off = true;
             air_purifier_mode = false;
         } else
             success = 0;
@@ -85,9 +95,9 @@ static void res_post_put_handler(coap_message_t *request,
         success = 0;
     if (air_purifier_mode == true) {
         if (success &&
-            (len = coap_get_variable_json((const char *)request->payload,
-                                          request->payload_len,
-                                          "\"carbon dioxide\"", &value))) {
+            (len = coap_get_variable_json(
+                 (const char *)request->payload, request->payload_len,
+                 "\"recommended carbon dioxide[1e-3]\"", &value))) {
             air_purifier_value = atoi(value);
         } else
             success = 0;
@@ -95,4 +105,13 @@ static void res_post_put_handler(coap_message_t *request,
     if (!success) {
         coap_set_status_code(response, BAD_REQUEST_4_00);
     }
+}
+
+static void res_periodic_handler() {
+    if (carbon_dioxide > 0.04 && !air_purifier_mode && !force_off) {
+        air_purifier_mode = true;
+        air_purifier_value = 40;
+    } else if (air_purifier_mode &&
+               carbon_dioxide < ((float)air_purifier_value / 1000))
+        air_purifier_value = false;
 }
