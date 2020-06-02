@@ -25,6 +25,7 @@ static void res_periodic_handler(void);
 #define PROBABILITY_UPDATE (0.2)
 
 static float humidity = -1;
+float old_humidity = -1;
 
 extern int humidifier_mode;
 extern bool humidifier_value;
@@ -74,5 +75,8 @@ static void res_periodic_handler() {
     else
         humidity -= ((float)rand() / RAND_MAX) * (OFFSET_VALUE);
 
-    coap_notify_observers(&res_humidity);
+    if (old_humidity != humidity) {
+        old_humidity = humidity;
+        coap_notify_observers(&res_humidity);
+    }
 }

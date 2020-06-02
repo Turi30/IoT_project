@@ -27,6 +27,7 @@ static void res_periodic_handler(void);
 #define PROBABILITY_UPDATE (0.2)
 
 static float temperature = -1;
+float old_temperature = -1;
 
 extern int conditioner_temperature;
 extern bool conditioner_mode;
@@ -79,6 +80,8 @@ static void res_periodic_handler() {
     else if (temperature < radiator_temperature ||
              temperature < conditioner_temperature)
         temperature += ((float)rand() / RAND_MAX) * (OFFSET_VALUE);
-
-    coap_notify_observers(&res_temperature);
+    if (old_temperature != temperature) {
+        old_temperature = temperature;
+        coap_notify_observers(&res_temperature);
+    }
 }

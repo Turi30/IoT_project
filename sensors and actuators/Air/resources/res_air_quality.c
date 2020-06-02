@@ -26,6 +26,7 @@ static void res_periodic_handler(void);
 #define OFFSET_VALUE (0.02)
 #define PROBABILITY_UPDATE (0.5)
 
+float old_carbon_dioxide = -1;
 float carbon_dioxide = -1;
 
 // External variables to update the value of the sensor in order to follow the
@@ -85,5 +86,8 @@ static void res_periodic_handler() {
     else if (carbon_dioxide < ((float)air_purifier_value / 1000))
         carbon_dioxide += ((float)rand() / RAND_MAX) * (OFFSET_VALUE);
 
-    coap_notify_observers(&res_air_quality);
+    if (carbon_dioxide != old_carbon_dioxide) {
+        old_carbon_dioxide = carbon_dioxide;
+        coap_notify_observers(&res_air_quality);
+    }
 }

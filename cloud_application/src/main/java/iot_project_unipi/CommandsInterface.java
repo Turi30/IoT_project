@@ -326,7 +326,7 @@ public class CommandsInterface {
         App.rooms_array.get(index).printResourcesInRoom();
     }
 
-    @ShellMethod("Print the last 20 values of the resource if this is observable")
+    @ShellMethod("Print the last values(up to 20) of the resource if this is observable")
     public void get_values_history() {
 
         echo("Enter the number of the resource to get the data history: ");
