@@ -15,8 +15,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+/*
+ * Class that create all the commands to interface with the application
+ */
 @ShellComponent
-public class CommandsInterface {
+public class Interface {
 
     public void echo(String message) {
         System.out.println(message);
@@ -60,7 +63,7 @@ public class CommandsInterface {
         App.resources_array.get(index).renameResource(readLine());
     }
 
-    @ShellMethod("Get parameters of sensor or actuator in a specific room")
+    @ShellMethod("Get parameters of sensor or actuator in a given room")
     public void get_parameter_local() {
 
         echo("Enter the number of the room: ");
@@ -125,7 +128,7 @@ public class CommandsInterface {
         }
     }
 
-    @ShellMethod("Post method in general")
+    @ShellMethod("Perform POST method on a specific resource")
     public void post_method_global() {
 
         echo("Enter the number of the resource to post data: ");
@@ -182,7 +185,7 @@ public class CommandsInterface {
     }
 
 
-    @ShellMethod("Post method in a specific room")
+    @ShellMethod("Perform POST method on a specific resource in a given room")
     public void post_method_local() {
 
         echo("Enter the number of the room: ");
@@ -246,7 +249,7 @@ public class CommandsInterface {
 
     }
 
-    @ShellMethod("Create room")
+    @ShellMethod("Create a new room")
     public void create_room() {
 
         echo("Enter the name to assign to the room: ");
@@ -266,7 +269,7 @@ public class CommandsInterface {
             echo(i + ": " + App.rooms_array.get(i).getName());
     }
 
-    @ShellMethod("Rename room")
+    @ShellMethod("Rename a room")
     public void rename_room() {
 
         int index = Integer.parseInt(readLine());
@@ -281,7 +284,7 @@ public class CommandsInterface {
 
     }
 
-    @ShellMethod("Assign resource to a specific room")
+    @ShellMethod("Assign a resource to a specific room")
     public void assign_room_resource() {
 
         echo("Enter the number of the room: ");

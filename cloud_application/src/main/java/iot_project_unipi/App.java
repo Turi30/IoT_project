@@ -28,7 +28,7 @@ public class App extends CoapServer {
         // Create a new instance of the application
         App server = new App();
         // Create and assign a new server to receive the registration requests
-        server.add(new RegistrationResource("registration"));
+        server.add(new ResourcesRegistration("registration"));
         // Start the server
         server.start();
 

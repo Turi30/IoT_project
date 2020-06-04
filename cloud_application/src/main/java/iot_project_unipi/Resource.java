@@ -18,6 +18,7 @@ public class Resource extends CoapClient {
     private CoapObserveRelation relation;
     private CoapHandlerObs handlerObs;
 
+    // Create a resource
     public Resource(String addr, String content) {
         super();
 
@@ -41,42 +42,52 @@ public class Resource extends CoapClient {
         }
     }
 
+    // Return the address of the resource
     public String getAddr() {
         return this.addr;
     }
 
+    // Return the path of the resource
     public String getPath() {
         return this.path;
     }
 
+    // Return the name of the resource
     public String getName() {
         return this.name;
     }
 
+    // Return the format of the payload to perform the POST/PUT method
     public String getPostPutFormat() {
         return this.methods.substring(this.methods.indexOf(",") + 2);
     }
 
+    // Check if the resource has a method
     public boolean hasMethod(String method) {
         return this.methods.contains(method.toUpperCase());
     }
 
+    // Rename the resource
     public void renameResource(String name) {
         this.name = name;
     }
 
+    // Check if the resource is observable
     public boolean isObservable() {
         return this.isObservable;
     }
 
+    // Set to true the private variable if the resource is assigned to a room
     public void setInRoom(boolean b) {
         this.isInRoom = b;
     }
 
+    // Return if the resource is in a room
     public boolean getInRoom() {
         return this.isInRoom;
     }
 
+    // Return the queue of the values history
     public Queue<String> getQueueObserve() {
         return this.handlerObs.getQueue();
 

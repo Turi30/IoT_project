@@ -6,6 +6,9 @@ import org.eclipse.californium.core.CoapHandler;
 import org.eclipse.californium.core.CoapResponse;
 import org.eclipse.californium.core.coap.MediaTypeRegistry;
 
+/*
+ * Class to implement the handler for the observable resources
+ */
 public class CoapHandlerObs implements CoapHandler {
     private final int max_index_array = 20;
     private Queue<String> observeQueue;
@@ -17,6 +20,7 @@ public class CoapHandlerObs implements CoapHandler {
 
     @Override
     public void onLoad(CoapResponse response) {
+        // Check if the response is in JSON format
         if (!response.getOptions().isContentFormat(MediaTypeRegistry.APPLICATION_JSON))
             return;
 
@@ -32,7 +36,7 @@ public class CoapHandlerObs implements CoapHandler {
         System.err.println("Failed");
     }
 
-    public Queue<String> getQueue(){
+    public Queue<String> getQueue() {
         return this.observeQueue;
     }
 
