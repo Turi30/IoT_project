@@ -80,12 +80,12 @@ public class Interface {
             return;
         }
 
-        if (!App.rooms_array.get(index_res).getResource(index_room).hasMethod("GET")) {
+        if (!App.rooms_array.get(index_room).getResource(index_res).hasMethod("GET")) {
             echo("This resourse doesn't have get method!");
             return;
         }
 
-        String res = App.rooms_array.get(index_res).getResource(index_room)
+        String res = App.rooms_array.get(index_room).getResource(index_res)
                 .get(MediaTypeRegistry.APPLICATION_JSON).getResponseText();
 
         JSONParser parser = new JSONParser();
@@ -202,7 +202,7 @@ public class Interface {
             return;
         }
 
-        if (!App.rooms_array.get(index_res).getResource(index_room).hasMethod("POST")) {
+        if (!App.rooms_array.get(index_room).getResource(index_res).hasMethod("POST")) {
             echo("This resourse doesn't have POST method!");
             return;
         }
