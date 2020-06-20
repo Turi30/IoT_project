@@ -23,6 +23,7 @@ extern coap_resource_t res_conditioner;
 extern coap_resource_t res_radiator;
 
 extern bool conditioner_mode;
+extern bool radiator_mode;
 
 static coap_message_type_t result = COAP_TYPE_RST;
 
@@ -46,6 +47,8 @@ PROCESS_THREAD(temperature_node, ev, data) {
 
     LOG_INFO("Starting temperature node\n");
 
+    leds_set(LEDS_NUM_TO_MASK(LEDS_YELLOW));
+
     coap_activate_resource(&res_temperature, "sensors/ambient/temperature");
     coap_activate_resource(&res_conditioner, "actuators/ambient/conditioner");
     coap_activate_resource(&res_radiator, "actuators/ambient/radiator");
@@ -66,7 +69,7 @@ PROCESS_THREAD(temperature_node, ev, data) {
         if (ev == button_hal_press_event) {
             conditioner_mode = !conditioner_mode;
         } else if (etimer_expired(&timer)) {
-            if (conditioner_mode)
+            if (conditioner_mode || radiator_mode)
                 leds_set(LEDS_NUM_TO_MASK(LEDS_GREEN));
             else
                 leds_set(LEDS_NUM_TO_MASK(LEDS_RED));

@@ -43,6 +43,8 @@ PROCESS_THREAD(washing_machine_node, ev, data) {
 
     LOG_INFO("Starting washing machine node\n");
 
+    leds_set(LEDS_NUM_TO_MASK(LEDS_YELLOW));
+
     coap_activate_resource(&res_washing_machine,
                            "actuators/ambient/washing-machine");
 

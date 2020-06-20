@@ -45,6 +45,8 @@ PROCESS_THREAD(dishwasher_node, ev, data) {
 
     LOG_INFO("Starting temperature node\n");
 
+    leds_set(LEDS_NUM_TO_MASK(LEDS_YELLOW));
+
     coap_activate_resource(&res_air_purifier, "actuators/ambient/air_purifier");
     coap_activate_resource(&res_air_quality, "actuators/ambient/air_quality");
 
